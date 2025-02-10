@@ -92,7 +92,38 @@ app.post('/forget', (req , res)=>{
  })
 
 
-app.listen(3000 , function(){
+ app.post("/addproduct" ,async (req , res)=>{
+  let db = client.db("ecom")
+  console.log(req.body);
+  
+  let user = await db.collection("product").insertOne(req.body)
+  if(user.acknowledged == true)   {
+    res.json({
+      message : "data has been added"
+    })
+  } 
+
+ })
+
+
+ app.get('/allproducts' , async(req , res)=>{
+  let db = client.db("ecom")
+  let user = await db.collection("product").find().toArray()
+  res.send(user)
+
+ })
+
+app.get('/detail' , async(req ,res) =>{
+  const query = req.body.query
+  console.log(query);
+  
+  let db = client.db("ecom")
+  let product =await db.collection("product").findOne({title :query })  
+  console.log(product);
+   res.json(product)
+})
+
+app.listen(3000 ,async function(){
     console.log('server is running....')
 })
 
