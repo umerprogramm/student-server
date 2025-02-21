@@ -21,10 +21,12 @@ databasecon()
 
 
 app.post('/signup' ,async (req , res)=>{
-  
+    console.log(req.body);
+    
 
     let db = client.db("ecom")
-    let find = db.collection("user").find({email : req.body.email})
+    let find = await db.collection("user").findOne({email : req.body.email})
+    
     if(find){
       res.json({
         message : "user already exist"
@@ -112,8 +114,20 @@ app.post('/forget', (req , res)=>{
   res.send(user)
 
  })
-
-app.get('/detail' , async(req ,res) =>{
+app.post('/buy' , async(req , res)=>{
+  let db = client.db("ecom")
+  let user = await db.collection("order").insertOne(req.body)
+  if(user.acknowledged == true)   {
+    res.json({
+      message : "Thanks for your order we will contact you soon"
+    })
+  } else{
+    res.json({
+      message : "Ops something went wrong"
+    })
+  }
+})
+app.post('/detail' , async(req ,res) =>{
   const query = req.body.query
   console.log(query);
   
@@ -121,6 +135,18 @@ app.get('/detail' , async(req ,res) =>{
   let product =await db.collection("product").findOne({title :query })  
   console.log(product);
    res.json(product)
+})
+
+app.post('/order' , async (req , res)=>{
+  console.log(req.body.email);
+  
+  let db = client.db("ecom")
+  let order =await db.collection("order").find({seller : req.body.email}).toArray()  
+  console.log(order);
+  
+  res.json(order)
+
+
 })
 
 app.listen(3000 ,async function(){
